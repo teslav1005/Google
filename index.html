@@ -1,145 +1,188 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شات تجريبي</title>
-    <style>
-        body { 
-            font-family: system-ui, -apple-system, sans-serif; 
-            background: #f0f2f5; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-        }
-        .chat-container { 
-            width: 100%; 
-            max-width: 400px; 
-            background: white; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            height: 80vh;
-        }
-        .header {
-            background: #0084ff;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-        }
-        .messages { 
-            padding: 20px; 
-            flex: 1; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-        }
-        .msg { 
-            padding: 10px 15px; 
-            border-radius: 18px; 
-            max-width: 75%; 
-            word-wrap: break-word;
-        }
-        .user { 
-            background: #0084ff; 
-            color: white; 
-            align-self: flex-end; 
-            border-bottom-left-radius: 4px;
-        }
-        .bot { 
-            background: #e4e6eb; 
-            color: black; 
-            align-self: flex-start; 
-            border-bottom-right-radius: 4px;
-        }
-        .input-area { 
-            display: flex; 
-            border-top: 1px solid #ddd; 
-            padding: 10px; 
-            background: #fff;
-        }
-        input { 
-            flex: 1; 
-            padding: 10px; 
-            border: 1px solid #ddd; 
-            border-radius: 20px; 
-            outline: none; 
-            font-family: inherit;
-        }
-        button { 
-            background: #0084ff; 
-            color: white; 
-            border: none; 
-            padding: 10px 20px; 
-            margin-right: 10px; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            font-family: inherit;
-            font-weight: bold;
-        }
-        button:hover { background: #006bce; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>شات فوري</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #1f2937;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .chat-box {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 15px;
+      min-height: 250px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+      border: 1px solid #374151;
+    }
+
+    .msg {
+      margin: 10px 0;
+      padding: 10px 14px;
+      border-radius: 12px;
+      max-width: 80%;
+      line-height: 1.6;
+    }
+
+    .user {
+      background: #2563eb;
+      margin-right: auto;
+    }
+
+    .bot {
+      background: #374151;
+      margin-left: auto;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 10px;
+      background: #10b981;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #059669;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #9ca3af;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="header">مساعد Vercel التجريبي</div>
-        <div class="messages" id="messages">
-            <div class="msg bot">مرحباً! أنا جاهز للتحدث معك.</div>
-        </div>
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="اكتب رسالتك..." onkeypress="handleKeyPress(event)">
-            <button onclick="sendMessage()">إرسال</button>
-        </div>
+  <div class="container">
+    <h1>شات فوري</h1>
+
+    <div class="chat-box" id="chatBox"></div>
+
+    <div class="input-row">
+      <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا..." />
+      <button onclick="sendMessage()">إرسال</button>
     </div>
 
-    <script>
-        async function sendMessage() {
-            const input = document.getElementById('userInput');
-            const message = input.value.trim();
-            if (!message) return;
+    <div class="status" id="status">جاهز</div>
+  </div>
 
-            // إضافة رسالة المستخدم للواجهة
-            appendMessage(message, 'user');
-            input.value = '';
+  <script>
+    const chatBox = document.getElementById("chatBox");
+    const messageInput = document.getElementById("messageInput");
+    const statusEl = document.getElementById("status");
 
-            try {
-                // إرسال الطلب لملف الباك إند
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
-                });
-                
-                const data = await response.json();
-                
-                // إضافة رد الخادم للواجهة
-                appendMessage(data.reply, 'bot');
-            } catch (error) {
-                appendMessage('حدث خطأ في الاتصال بالخادم.', 'bot');
-            }
+    let lastTimestamp = 0;
+
+    function addMessage(text, type) {
+      const div = document.createElement("div");
+      div.className = `msg ${type}`;
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      addMessage("أنت: " + message, "user");
+      messageInput.value = "";
+      statusEl.textContent = "جارٍ الإرسال...";
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          lastTimestamp = data.timestamp;
+          addMessage("الخادم: " + data.reply, "bot");
+          statusEl.textContent = "تم الإرسال بنجاح";
+        } else {
+          statusEl.textContent = "فشل في الإرسال";
         }
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "خطأ في الاتصال بالخادم";
+      }
+    }
 
-        function appendMessage(text, sender) {
-            const messagesDiv = document.getElementById('messages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `msg ${sender}`;
-            msgDiv.innerText = text;
-            messagesDiv.appendChild(msgDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
+    async function pollMessages() {
+      try {
+        const res = await fetch("/api/chat");
+        const data = await res.json();
 
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') sendMessage();
+        if (data.success && data.timestamp && data.timestamp > lastTimestamp) {
+          lastTimestamp = data.timestamp;
+
+          // نعرض فقط إذا كانت رسالة جديدة ولم تكن هذه نفس الرسالة التي أرسلناها للتو
+          const lastBotMessage = Array.from(chatBox.querySelectorAll(".bot")).pop()?.textContent || "";
+          const newBotText = "الخادم: " + data.reply;
+
+          if (lastBotMessage !== newBotText) {
+            addMessage(newBotText, "bot");
+          }
         }
-    </script>
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
+    }
+
+    // تحديث كل ثانية
+    setInterval(pollMessages, 1000);
+
+    // Enter للإرسال
+    messageInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
 </body>
 </html>
-
-```
